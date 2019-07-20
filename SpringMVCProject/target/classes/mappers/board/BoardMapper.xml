@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="BoardMapper">
+
+	<!-- DB컬럼과 VO필드명이 다른경우 처리 방법 -->
+	<resultMap type="BoardVO" id="BoardResultMap">
+		<id property="boardNo" column="board_no" />
+		<result property="title" column="title" />
+		<result property="content" column="content" />
+		<result property="writer" column="writer" />
+		<result property="regDate" column="reg_date" />
+		<result property="viewCnt" column="view_cnt" />
+	</resultMap>
+
+
+	<!-- 게시물 등록 -->
+	<insert id="insert">
+		INSERT INTO mvc_board (title, content, writer)
+		VALUES
+		(#{title}, #{content}, #{writer})
+	</insert>
+
+	<!-- 단일 게시물 조회 -->
+	<select id="getArticle" resultMap="BoardResultMap">
+		SELECT * FROM mvc_board
+		WHERE
+		board_no = #{boardNo}
+	</select>
+
+	<!-- 수정 -->
+	<update id="update">
+		UPDATE mvc_board SET title=#{title},
+		content=#{content}
+		WHERE board_no=#{boardNo}
+	</update>
+
+	<delete id="delete">
+		DELETE FROM mvc_board
+		WHERE board_no = #{boardNo}
+	</delete>
+
+	<!-- 모든게시물 -->
+	<!-- xml에서 SQL 구문 작성시 연산자 기호와 문자열을 구분할 수 없을 경우 <![CDATA]> 구문 안에 SQL을 작성하면 
+		연산자 기호를 문자열로 처리할 수 있습니다. -->
+	<select id="getAllArticles" resultMap="BoardResultMap">
+		<![CDATA[
+		SELECT * FROM mvc_board 
+		WHERE board_no > 0 
+		ORDER BY board_no DESC
+		]]>
+	</select>
+
+	<!-- 페이지별 개시물 조회 -->
+	<select id="listPaging" resultMap="BoardResultMap">
+
+		SELECT *
+		FROM mvc_board
+		ORDER BY
+		board_no DESC
+		LIMIT #{pageStart}, #{countPerPage}
+
+	</select>
+
+	<!-- 총 게시물 수 가져오기 -->
+	<select id="countArticles" resultType="int">
+
+		SELECT count(board_no)
+		FROM mvc_board
+
+	</select>
+
+	<!-- 검색된 게시물 수 조회처리 -->
+
+	<select id="countSearchedArticles" resultType="int">
+
+		select COUNT(*)
+		FROM mvc_board
+
+		<include refid="search" />
+
+	</select>
+
+	<!-- 검색된 게시물 목록 조회처리 -->
+	<select id="listSearch" resultMap="BoardResultMap">
+		SELECT * FROM mvc_board
+
+		<include refid="search" />
+
+		order by board_no DESC
+		LIMIT #{pageStart}, #{countPerPage}
+	</select>
+
+	<!-- 중복되는 동적 SQL구문 처리(sql 태그 삽입하기위한태그) -->
+	<sql id="search">
+		<if test="condition !=''">
+
+			<if test="condition == 'title'">
+				where title like CONCAT('%', #{keyword}, '%') 
+			</if>
+			<if test="condition == 'writer'">
+				where writer like CONCAT('%', #{keyword}, '%') 
+			</if>
+			<if test="condition == 'content'">
+				where content like CONCAT('%', #{keyword}, '%') 
+			</if>
+			<if test="condition == 'titleContent'">
+				where title like CONCAT('%', #{keyword}, '%') 
+				OR content like CONCAT('%', #{keyword}, '%') 
+			</if>
+		</if>
+	</sql>
+
+
+
+
+	<!-- 제목으로 검색한 게시물 목록 가져오기 <select id="listSearchByTitle" resultMap="BoardResultMap"> 
+		SELECT * FROM mvc_board WHERE title LIKE CONCAT('%', #{keyword}, '%') ORDER 
+		BY board_no DESC LIMIT #{pageStart}, #{countPerPage} </select> -->
+
+	<!-- 제목 + 내용 <select id="listSearchByTitleContent" resultMap="BoardResultMap"> 
+		SELECT * FROM mvc_board where title like CONCAT('%', #{keyword}, '%') OR 
+		content like CONCAT('%', #{keyword}, '%') order by board_no DESC LIMIT #{pageStart}, 
+		#{countPerPage} </select> -->
+
+	<!-- 검색 결과 게시물 수를 가져오기 <select id="countSearchedArticles" resultType="int"> 
+		select COUNT(*) FROM mvc_board where title like CONCAT('%', #{keyword}, '%') 
+		OR content like CONCAT('%', #{keyword}, '%') </select> -->
+
+
+
+</mapper>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans
+	xmlns="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc https://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
+
+	<!-- DispatcherServlet 의 기반 설정을 기록하는 파일 -->
+
+	<!-- 자바의 어노테이션 문법을 해석하게 하는 코드 -->
+	<annotation-driven />
+
+	<!-- 정적 자원 매핑 : 절대경로를 가볍게 처리 "location을 쓸때 mapping으로 쓰겟다" -->
+	<resources mapping="/resources/**" location="/resources/" />
+	<resources mapping="/bower_components/**" location="/resources/bower_components/" />
+	<resources mapping="/plugins/**" location="/resources/plugins/" />
+	<resources mapping="/dist/**" location="/resources/dist/" />
+	
+	<!-- 뷰 리졸버 설정 -->
+	<beans:bean
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<beans:property name="prefix" value="/WEB-INF/views/" />
+		<beans:property name="suffix" value=".jsp" />
+	</beans:bean>
+
+	<!-- 객체를 주입할 때 이하의 패키지에서 검색하겠다. -->
+	<context:component-scan
+		base-package="com.spring.myapp" />
+
+
+
+</beans:beans>
